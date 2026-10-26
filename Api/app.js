@@ -7,6 +7,8 @@ import morgan from "morgan";
 import { exportValidation } from "./Middleware/exportValidation.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Utils/Swagger.js";
+import userRouter from "./Modules/User/user.js";
+import authRouter from "./Modules/Auth/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -17,6 +19,9 @@ app.use(morgan("dev"));
 app.use("/uploads", express.static(`${__dirname}/public`));
 app.use(exportValidation);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use("/api/auth", authRouter)
+app.use("/api/users", userRouter)
 
 app.use((req, res, next) => {
   return res.status(404).json({
