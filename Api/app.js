@@ -9,6 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./Utils/Swagger.js";
 import userRouter from "./Modules/User/user.js";
 import authRouter from "./Modules/Auth/auth.js";
+import productRouter from "./Modules/Product/product.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -22,6 +23,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRouter)
 app.use("/api/users", userRouter)
+app.use("/api/products", productRouter)
 
 app.use((req, res, next) => {
   return res.status(404).json({
