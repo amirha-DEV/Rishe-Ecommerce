@@ -72,11 +72,11 @@ const productSchema = new mongoose.Schema(
     },
     description: {
       type: optionalLocalizedSchema,
-      default: undefined,
+      default: "",
     },
     details: {
       type: optionalLocalizedSchema,
-      default: undefined,
+      default: "",
     },
     slug: {
       fa: {

@@ -71,10 +71,8 @@ export const create = catchAsync(async (req, res, next) => {
     ratingCount,
     ratingAvg,
     boughtCount,
-    _id,
     createdAt,
     updatedAt,
-    __v,
     ...productData
   } = req.body;
 
@@ -210,7 +208,6 @@ export const update = catchAsync(async (req, res, next) => {
     data: newProduct,
   });
 });
-
 
 export const remove = catchAsync(async (req, res, next) => {
   const product = await Product.findById(req.params.id);

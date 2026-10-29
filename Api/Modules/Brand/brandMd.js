@@ -33,7 +33,10 @@ const brandSchema = new mongoose.Schema(
         trim: true,
         lowercase: true,
         minlength: [3, "اسلاگ فارسی برند نمی‌تواند کمتر از 3 کاراکتر باشد."],
-        maxlength: [100, "اسلاگ فارسی برند نمی‌تواند بیشتر از 100 کاراکتر باشد."],
+        maxlength: [
+          100,
+          "اسلاگ فارسی برند نمی‌تواند بیشتر از 100 کاراکتر باشد.",
+        ],
       },
       en: {
         type: String,
@@ -55,7 +58,7 @@ const brandSchema = new mongoose.Schema(
     },
     website: {
       type: String,
-      default: "",
+
       trim: true,
     },
     isActive: {
@@ -71,14 +74,8 @@ const brandSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-brandSchema.index(
-  { "slug.fa": 1 },
-  { unique: true },
-);
-brandSchema.index(
-  { "slug.en": 1 },
-  { unique: true },
-);
+brandSchema.index({ "slug.fa": 1 }, { unique: true });
+brandSchema.index({ "slug.en": 1 }, { unique: true });
 brandSchema.index({ isActive: 1, createdAt: -1 });
 
 const Brand = mongoose.model("Brand", brandSchema);
