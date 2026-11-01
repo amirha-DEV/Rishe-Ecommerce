@@ -12,6 +12,11 @@ import authRouter from "./Modules/Auth/auth.js";
 import productRouter from "./Modules/Product/product.js";
 import brandRouter from "./Modules/Brand/brand.js";
 import categoryRouter from "./Modules/Category/category.js";
+import commentRouter from "./Modules/Comment/comment.js";
+import discountRouter from "./Modules/Discount/discount.js";
+import searchRouter from "./Modules/Search/search.js";
+import addressRouter from "./Modules/Address/address.js";
+import isLogin from "./Middleware/isLogin.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -23,11 +28,15 @@ app.use("/uploads", express.static(`${__dirname}/public`));
 app.use(exportValidation);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/api/auth", authRouter)
-app.use("/api/users", userRouter)
-app.use("/api/products", productRouter)
-app.use("/api/brands", brandRouter)
-app.use("/api/categories", categoryRouter)
+app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
+app.use("/api/products", productRouter);
+app.use("/api/brands", brandRouter);
+app.use("/api/categories", categoryRouter);
+app.use("/api/comments", commentRouter);
+app.use("/api/discounts", discountRouter);
+app.use("/api/search", searchRouter);
+app.use("/api/addresses", isLogin, addressRouter);
 
 app.use((req, res, next) => {
   return res.status(404).json({
