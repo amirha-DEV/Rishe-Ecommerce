@@ -17,6 +17,7 @@ import discountRouter from "./Modules/Discount/discount.js";
 import searchRouter from "./Modules/Search/search.js";
 import addressRouter from "./Modules/Address/address.js";
 import isLogin from "./Middleware/isLogin.js";
+import sliderRouter from "./Modules/Slider/slider.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -37,6 +38,7 @@ app.use("/api/comments", commentRouter);
 app.use("/api/discounts", discountRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/addresses", isLogin, addressRouter);
+app.use("/api/sliders", sliderRouter);
 
 app.use((req, res, next) => {
   return res.status(404).json({
