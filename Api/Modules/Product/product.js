@@ -6,21 +6,23 @@ import {
   createProductValidator,
   updateProductValidator,
 } from "./productValidator.js";
+import isLogin from "../../Middleware/isLogin.js";
 
 const productRouter = Router();
 productRouter
   .route("/")
   .get(getAll)
-  .post(isAdmin, createProductValidator, create);
+  .post(isLogin,isAdmin, createProductValidator, create);
 productRouter
   .route("/:id")
   .get(productIdValidator, getOne)
   .patch(
+    isLogin,
     isAdmin,
     productIdValidator,
     updateProductValidator,
     update,
   )
-  .delete(isAdmin, productIdValidator, remove);
+  .delete(isLogin, isAdmin, productIdValidator, remove);
 
 export default productRouter;

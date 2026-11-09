@@ -39,3 +39,9 @@ export const changePasswordValidator = [
 export const userIdValidator = [
   param("id").isMongoId().withMessage("Invalid user ID"),
 ];
+
+export const favoriteProductValidator = [
+  param("productId")
+    .isMongoId()
+    .withMessage("Invalid product ID"),
+];

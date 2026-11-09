@@ -1,5 +1,6 @@
 import ApiFeatures, { catchAsync, HandleERROR } from "vanta-api";
 import User from "./userMd.js";
+import Product from "../Product/productMd.js";
 import bcrypt from "bcryptjs";
 
 // Get All Users
@@ -60,7 +61,7 @@ export const update = catchAsync(async (req, res, next) => {
 });
 
 // Change Password
-export const changePasssword = catchAsync(async (req, res, next) => {
+export const changePassword = catchAsync(async (req, res, next) => {
   const { oldPassword = null, newPassword = null } = req.body;
 
   const passReg = new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/);
@@ -105,5 +106,69 @@ export const deActive = catchAsync(async (req, res, next) => {
     message: newUser.isActive
       ? "user active successfully"
       : "user deActive successfully",
+  });
+});
+
+// Add Product to Favorites
+export const addFavorite = catchAsync(async (req, res, next) => {
+  const product = await Product.findOne({
+    _id: req.params.productId,
+    isPublished: true,
+  });
+  if (!product) {
+    return next(new HandleERROR("Product not found", 404));
+  }
+  const user = await User.findByIdAndUpdate(
+    req.userId,
+    {
+      $addToSet: { favoriteProductIds: product._id },
+    },
+    { new: true },
+  );
+  if (!user) {
+    return next(new HandleERROR("User not found", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Product added to favorites successfully",
+    data: user.favoriteProductIds,
+  });
+});
+
+// Remove Product from Favorites
+export const removeFavorite = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.userId,
+    {
+      $pull: { favoriteProductIds: req.params.productId },
+    },
+    { new: true },
+  );
+  if (!user) {
+    return next(new HandleERROR("User not found", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Product removed from favorites successfully",
+    data: user.favoriteProductIds,
+  });
+});
+
+// Get Favorite Products
+export const getFavorites = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.userId).populate({
+    path: "favoriteProductIds",
+    select: "title slug images ratingAvg ratingCount",
+    match: { isPublished: true },
+  });
+  if (!user) {
+    return next(new HandleERROR("User not found", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    data: user.favoriteProductIds,
   });
 });

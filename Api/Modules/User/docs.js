@@ -2,7 +2,7 @@
  * @swagger
  * tags:
  *   name: Users
- *   description: User management and account security
+ *   description: User management, account security, and favorite products
  */
 
 /**
@@ -92,6 +92,68 @@
  *           pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$'
  *           example: "NewPass123"
  *
+ *     FavoriteProduct:
+ *       type: object
+ *       description: Product information returned when retrieving favorite products.
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: "671a12bc34de56f789012345"
+ *         title:
+ *           type: object
+ *           properties:
+ *             fa:
+ *               type: string
+ *               example: "تابلو چوبی شعر"
+ *             en:
+ *               type: string
+ *               example: "Wooden Poetry Plaque"
+ *         slug:
+ *           type: object
+ *           properties:
+ *             fa:
+ *               type: string
+ *               example: "تابلو-چوبی-شعر"
+ *             en:
+ *               type: string
+ *               example: "wooden-poetry-plaque"
+ *         images:
+ *           type: array
+ *           items:
+ *             type: string
+ *         ratingAvg:
+ *           type: number
+ *           example: 4.5
+ *         ratingCount:
+ *           type: integer
+ *           example: 12
+ *
+ *     FavoriteProductsResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/FavoriteProduct'
+ *
+ *     FavoriteActionResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: "Product added to favorites successfully"
+ *         data:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Updated favorite product IDs.
+ *
  *     UserSuccessResponse:
  *       type: object
  *       properties:
@@ -120,7 +182,7 @@
  * /api/users:
  *   get:
  *     summary: Get all users
- *     description: Retrieve users with filtering, searching, sorting, and pagination.
+ *     description: Retrieve users with filtering, searching, sorting, and pagination. Requires admin access.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -178,10 +240,86 @@
  *       404:
  *         description: User not found.
  *
+ * /api/users/me/favorites:
+ *   get:
+ *     summary: Get favorite products
+ *     description: Retrieve all published products saved in the authenticated user's favorites.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Favorite products retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FavoriteProductsResponse'
+ *       401:
+ *         description: Authentication required.
+ *       404:
+ *         description: User not found.
+ *
+ * /api/users/me/favorites/{productId}:
+ *   post:
+ *     summary: Add product to favorites
+ *     description: Add a published product to the authenticated user's favorite list. Duplicate products are not added.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: '^[0-9a-fA-F]{24}$'
+ *         description: MongoDB product ID.
+ *     responses:
+ *       200:
+ *         description: Product added to favorites successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FavoriteActionResponse'
+ *       400:
+ *         description: Invalid product ID.
+ *       401:
+ *         description: Authentication required.
+ *       404:
+ *         description: Product or user not found.
+ *
+ *   delete:
+ *     summary: Remove product from favorites
+ *     description: Remove a product from the authenticated user's favorite list.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: '^[0-9a-fA-F]{24}$'
+ *         description: MongoDB product ID.
+ *     responses:
+ *       200:
+ *         description: Product removed from favorites successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FavoriteActionResponse'
+ *       400:
+ *         description: Invalid product ID.
+ *       401:
+ *         description: Authentication required.
+ *       404:
+ *         description: User not found.
+ *
  * /api/users/{id}:
  *   get:
  *     summary: Get one user
- *     description: Retrieve a user. Access must be restricted according to the authenticated user's role and permissions.
+ *     description: Retrieve a user. Users can access their own profile, while access to other profiles depends on authorization rules.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -205,7 +343,7 @@
  *
  *   patch:
  *     summary: Update user
- *     description: Update user information. Only a superAdmin should be allowed to change roles.
+ *     description: Update user information. Only a superAdmin can change user roles.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
