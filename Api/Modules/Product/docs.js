@@ -1,4 +1,3 @@
-
 /**
  * @swagger
  * tags:
@@ -10,7 +9,7 @@
  * @swagger
  * components:
  *   schemas:
- *     LocalizedTitle:
+ *     ProductLocalizedText:
  *       type: object
  *       required:
  *         - fa
@@ -20,26 +19,26 @@
  *           type: string
  *           minLength: 3
  *           maxLength: 150
- *           example: "تابلو چوبی شعر"
+ *           example: محصول چوبی دست‌ساز
  *         en:
  *           type: string
  *           minLength: 3
  *           maxLength: 150
- *           example: "Wooden Poetry Plaque"
+ *           example: Handmade Wooden Product
  *
- *     LocalizedText:
+ *     ProductOptionalLocalizedText:
  *       type: object
  *       properties:
  *         fa:
  *           type: string
  *           minLength: 3
  *           maxLength: 5000
- *           example: "تابلوی چوبی دست‌ساز با شعر فارسی"
+ *           example: توضیحات محصول به زبان فارسی
  *         en:
  *           type: string
  *           minLength: 3
  *           maxLength: 5000
- *           example: "Handmade wooden plaque with Persian poetry"
+ *           example: Product description in English
  *
  *     ProductInformation:
  *       type: object
@@ -48,9 +47,9 @@
  *         - value
  *       properties:
  *         key:
- *           $ref: '#/components/schemas/LocalizedText'
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
  *         value:
- *           $ref: '#/components/schemas/LocalizedText'
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
  *
  *     ProductTags:
  *       type: object
@@ -61,14 +60,100 @@
  *             type: string
  *           example:
  *             - چوبی
- *             - دکوراتیو
+ *             - دست‌ساز
  *         en:
  *           type: array
  *           items:
  *             type: string
  *           example:
  *             - wooden
- *             - decorative
+ *             - handmade
+ *
+ *     Product:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 673a12bc45de678901234567
+ *         brandId:
+ *           type: string
+ *           example: 673a12bc45de678901234568
+ *         categoryIds:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example:
+ *             - 673a12bc45de678901234569
+ *         title:
+ *           $ref: '#/components/schemas/ProductLocalizedText'
+ *         description:
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
+ *         details:
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
+ *         slug:
+ *           type: object
+ *           required:
+ *             - fa
+ *             - en
+ *           properties:
+ *             fa:
+ *               type: string
+ *               minLength: 3
+ *               maxLength: 180
+ *               example: محصول-چوبی
+ *             en:
+ *               type: string
+ *               minLength: 3
+ *               maxLength: 180
+ *               example: wooden-product
+ *         images:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example:
+ *             - products/image1.webp
+ *             - products/image2.webp
+ *         videos:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example:
+ *             - products/video1.mp4
+ *         information:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ProductInformation'
+ *         tags:
+ *           $ref: '#/components/schemas/ProductTags'
+ *         ratingCount:
+ *           type: integer
+ *           minimum: 0
+ *           readOnly: true
+ *           example: 12
+ *         ratingAvg:
+ *           type: number
+ *           minimum: 0
+ *           maximum: 5
+ *           readOnly: true
+ *           example: 4.5
+ *         boughtCount:
+ *           type: integer
+ *           minimum: 0
+ *           readOnly: true
+ *           example: 25
+ *         isPublished:
+ *           type: boolean
+ *           example: true
+ *         seoId:
+ *           type: string
+ *           nullable: true
+ *           example: 673a12bc45de678901234570
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  *
  *     ProductInput:
  *       type: object
@@ -80,25 +165,20 @@
  *       properties:
  *         brandId:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
- *           example: "671234567890123456789012"
- *           description: MongoDB ID of the product brand
+ *           example: 673a12bc45de678901234568
  *         categoryIds:
  *           type: array
  *           minItems: 1
- *           uniqueItems: true
  *           items:
  *             type: string
- *             pattern: '^[0-9a-fA-F]{24}$'
  *           example:
- *             - "671234567890123456789013"
- *             - "671234567890123456789014"
+ *             - 673a12bc45de678901234569
  *         title:
- *           $ref: '#/components/schemas/LocalizedTitle'
+ *           $ref: '#/components/schemas/ProductLocalizedText'
  *         description:
- *           $ref: '#/components/schemas/LocalizedText'
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
  *         details:
- *           $ref: '#/components/schemas/LocalizedText'
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
  *         slug:
  *           type: object
  *           required:
@@ -109,25 +189,24 @@
  *               type: string
  *               minLength: 3
  *               maxLength: 180
- *               example: "تابلو-شعر-چوبی"
+ *               example: محصول-چوبی
  *             en:
  *               type: string
  *               minLength: 3
  *               maxLength: 180
- *               example: "wooden-poetry-plaque"
+ *               example: wooden-product
  *         images:
  *           type: array
  *           items:
  *             type: string
  *           example:
- *             - "uploads/products/product-1.jpg"
- *             - "uploads/products/product-2.jpg"
+ *             - products/image1.webp
  *         videos:
  *           type: array
  *           items:
  *             type: string
  *           example:
- *             - "uploads/products/product-video.mp4"
+ *             - products/video1.mp4
  *         information:
  *           type: array
  *           items:
@@ -141,98 +220,65 @@
  *         seoId:
  *           type: string
  *           nullable: true
- *           pattern: '^[0-9a-fA-F]{24}$'
- *           example: "671234567890123456789015"
+ *           example: 673a12bc45de678901234570
  *
- *     Product:
- *       allOf:
- *         - $ref: '#/components/schemas/ProductInput'
- *         - type: object
- *           properties:
- *             _id:
- *               type: string
- *               readOnly: true
- *               example: "671234567890123456789016"
- *             ratingCount:
- *               type: integer
- *               minimum: 0
- *               readOnly: true
- *               example: 12
- *             ratingAvg:
- *               type: number
- *               minimum: 0
- *               maximum: 5
- *               readOnly: true
- *               example: 4.5
- *             boughtCount:
- *               type: integer
- *               minimum: 0
- *               readOnly: true
- *               example: 8
- *             createdAt:
- *               type: string
- *               format: date-time
- *               readOnly: true
- *             updatedAt:
- *               type: string
- *               format: date-time
- *               readOnly: true
- *
- *     ProductResponse:
+ *     ProductUpdateInput:
  *       type: object
+ *       description: All fields are optional. Only provided fields will be updated.
  *       properties:
- *         success:
- *           type: boolean
- *           example: true
- *         message:
+ *         brandId:
  *           type: string
- *           example: "Product retrieved successfully"
- *         data:
- *           $ref: '#/components/schemas/Product'
- *
- *     ProductListResponse:
- *       type: object
- *       description: Product list response returned by ApiFeatures. Exact pagination fields depend on the ApiFeatures implementation.
- *       properties:
- *         success:
- *           type: boolean
- *           example: true
- *         data:
+ *           example: 673a12bc45de678901234568
+ *         categoryIds:
+ *           type: array
+ *           minItems: 1
+ *           items:
+ *             type: string
+ *         title:
+ *           type: object
+ *           properties:
+ *             fa:
+ *               type: string
+ *               minLength: 3
+ *               maxLength: 150
+ *             en:
+ *               type: string
+ *               minLength: 3
+ *               maxLength: 150
+ *         description:
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
+ *         details:
+ *           $ref: '#/components/schemas/ProductOptionalLocalizedText'
+ *         slug:
+ *           type: object
+ *           properties:
+ *             fa:
+ *               type: string
+ *               minLength: 3
+ *               maxLength: 180
+ *             en:
+ *               type: string
+ *               minLength: 3
+ *               maxLength: 180
+ *         images:
  *           type: array
  *           items:
- *             $ref: '#/components/schemas/Product'
- *
- *     ProductMessageResponse:
- *       type: object
- *       properties:
- *         success:
+ *             type: string
+ *         videos:
+ *           type: array
+ *           items:
+ *             type: string
+ *         information:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ProductInformation'
+ *         tags:
+ *           $ref: '#/components/schemas/ProductTags'
+ *         isPublished:
  *           type: boolean
- *           example: true
- *         message:
+ *         seoId:
  *           type: string
- *           example: "Product created successfully"
- *         data:
- *           $ref: '#/components/schemas/Product'
- *
- *     ProductDeleteResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: true
- *         message:
- *           type: string
- *           example: "Product deleted successfully"
- *
- *     ProductErrorResponse:
- *       type: object
- *       properties:
- *         success:
- *           type: boolean
- *           example: false
- *         message:
- *           type: string
- *           example: "Product not found"
+ *           nullable: true
  */
 
 /**
@@ -240,7 +286,6 @@
  * /api/products:
  *   get:
  *     summary: Get all products
- *     description: Returns published products for regular users and all products for admin and superAdmin roles. Supports filtering, searching, sorting, field selection and pagination through ApiFeatures.
  *     tags: [Products]
  *     parameters:
  *       - in: query
@@ -248,45 +293,39 @@
  *         schema:
  *           type: integer
  *           minimum: 1
- *         description: Page number supported by ApiFeatures
+ *         description: Page number
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           minimum: 1
- *         description: Number of products per page, if supported by ApiFeatures
+ *         description: Number of products per page
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
- *         description: Search in Persian and English product titles and descriptions
+ *         description: Search products by Persian or English title and description
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
- *         description: Sorting expression supported by ApiFeatures
- *       - in: header
- *         name: Accept-Language
+ *         description: Sort products by specific fields
+ *       - in: query
+ *         name: fields
  *         schema:
  *           type: string
- *           enum: [fa, en]
- *         description: Preferred language for error and success messages
+ *         description: Select specific product fields
  *     responses:
  *       200:
  *         description: Products retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductListResponse'
  *       500:
  *         description: Internal server error
  *
  *   post:
  *     summary: Create a product
- *     description: Creates a new product. Requires admin or superAdmin access.
  *     tags: [Products]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -296,28 +335,12 @@
  *     responses:
  *       201:
  *         description: Product created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductMessageResponse'
  *       400:
- *         description: Invalid product data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
+ *         description: Validation error
  *       401:
  *         description: Authentication required
  *       403:
  *         description: Admin access required
- *       422:
- *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       500:
- *         description: Internal server error
  */
 
 /**
@@ -325,7 +348,6 @@
  * /api/products/{id}:
  *   get:
  *     summary: Get a product by ID
- *     description: Returns a published product for regular users. Admin and superAdmin roles can also retrieve unpublished products.
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -333,178 +355,66 @@
  *         required: true
  *         schema:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
- *         description: MongoDB ID of the product
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *           type: string
- *           enum: [fa, en]
+ *         description: MongoDB product ID
  *     responses:
  *       200:
  *         description: Product retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductResponse'
+ *       400:
+ *         description: Invalid product ID
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       422:
- *         description: Invalid product ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       500:
- *         description: Internal server error
  *
  *   patch:
  *     summary: Update a product
- *     description: Updates an existing product. Only the provided fields need to be sent. Requires admin or superAdmin access.
  *     tags: [Products]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
- *         description: MongoDB ID of the product
+ *         description: MongoDB product ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               brandId:
- *                 type: string
- *                 pattern: '^[0-9a-fA-F]{24}$'
- *               categoryIds:
- *                 type: array
- *                 minItems: 1
- *                 uniqueItems: true
- *                 items:
- *                   type: string
- *                   pattern: '^[0-9a-fA-F]{24}$'
- *               title:
- *                 $ref: '#/components/schemas/LocalizedTitle'
- *               description:
- *                 $ref: '#/components/schemas/LocalizedText'
- *               details:
- *                 $ref: '#/components/schemas/LocalizedText'
- *               slug:
- *                 type: object
- *                 properties:
- *                   fa:
- *                     type: string
- *                     minLength: 3
- *                     maxLength: 180
- *                   en:
- *                     type: string
- *                     minLength: 3
- *                     maxLength: 180
- *               images:
- *                 type: array
- *                 items:
- *                   type: string
- *               videos:
- *                 type: array
- *                 items:
- *                   type: string
- *               information:
- *                 type: array
- *                 items:
- *                   $ref: '#/components/schemas/ProductInformation'
- *               tags:
- *                 $ref: '#/components/schemas/ProductTags'
- *               isPublished:
- *                 type: boolean
- *               seoId:
- *                 type: string
- *                 nullable: true
- *                 pattern: '^[0-9a-fA-F]{24}$'
+ *             $ref: '#/components/schemas/ProductUpdateInput'
  *     responses:
  *       200:
  *         description: Product updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductMessageResponse'
  *       400:
- *         description: Invalid product data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
+ *         description: Validation error
  *       401:
  *         description: Authentication required
  *       403:
  *         description: Admin access required
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       422:
- *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       500:
- *         description: Internal server error
  *
  *   delete:
  *     summary: Delete a product
- *     description: Deletes a product and its media files if it exists and has no sales history. Requires admin or superAdmin access.
  *     tags: [Products]
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *           pattern: '^[0-9a-fA-F]{24}$'
- *         description: MongoDB ID of the product
+ *         description: MongoDB product ID
  *     responses:
  *       200:
  *         description: Product deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductDeleteResponse'
  *       400:
- *         description: Product has sales history and cannot be deleted
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
+ *         description: Invalid product ID or product has sales history and cannot be deleted
  *       401:
  *         description: Authentication required
  *       403:
  *         description: Admin access required
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       422:
- *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProductErrorResponse'
- *       500:
- *         description: Internal server error
  */

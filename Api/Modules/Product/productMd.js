@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const localizedSchema = new mongoose.Schema(
+export const localizedSchema = new mongoose.Schema(
   {
     fa: {
       type: String,
