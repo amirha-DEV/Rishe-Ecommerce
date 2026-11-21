@@ -22,6 +22,7 @@ import attributeRouter from "./Modules/Attribute/attribute.js";
 import productVariantRouter from "./Modules/ProductVariant/productVariant.js";
 import blogCategoryRouter from "./Modules/BlogCategory/blogCategory.js";
 import blogRouter from "./Modules/Blog/blog.js";
+import blogCommentRouter from "./Modules/BlogComment/blogComment.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -47,6 +48,7 @@ app.use("/api/attributes", attributeRouter);
 app.use("/api/product-variants", productVariantRouter);
 app.use("/api/blog-categories", blogCategoryRouter);
 app.use("/api/blogs", blogRouter);
+app.use("/api/blog-comments", blogCommentRouter);
 
 app.use((req, res, next) => {
   return res.status(404).json({

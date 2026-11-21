@@ -1,4 +1,4 @@
-import ApiFeatures, { catchAsync } from "vanta-api";
+import ApiFeatures, { catchAsync, HandleERROR } from "vanta-api";
 import Comment from "./commentMd.js";
 import User from "../User/userMd.js";
 import Product from "../Product/productMd.js";
@@ -29,7 +29,7 @@ export const getAll = catchAsync(async (req, res, next) => {
     .populate([
       {
         path: "userId",
-        select: "fullName phoneNumber role",
+        select: "fullName role",
       },
       {
         path: "productId",
