@@ -20,6 +20,7 @@ import isLogin from "./Middleware/isLogin.js";
 import sliderRouter from "./Modules/Slider/slider.js";
 import attributeRouter from "./Modules/Attribute/attribute.js";
 import productVariantRouter from "./Modules/ProductVariant/productVariant.js";
+import blogCategoryRouter from "./Modules/BlogCategory/blogCategory.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -43,6 +44,8 @@ app.use("/api/addresses", isLogin, addressRouter);
 app.use("/api/sliders", sliderRouter);
 app.use("/api/attributes", attributeRouter);
 app.use("/api/product-variants", productVariantRouter);
+app.use("/api/blog-categories", blogCategoryRouter);
+
 app.use((req, res, next) => {
   return res.status(404).json({
     success: false,

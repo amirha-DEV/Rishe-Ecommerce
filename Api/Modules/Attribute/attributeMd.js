@@ -1,5 +1,20 @@
 import mongoose from "mongoose";
-import { localizedSchema } from "../Product/productMd.js";
+
+const localizedSchema = new mongoose.Schema(
+  {
+    fa: {
+      type: String,
+      required: [true, "عنوان فارسی الزامی است."],
+      trim: true,
+    },
+    en: {
+      type: String,
+      required: [true, "عنوان انگلیسی الزامی است."],
+      trim: true,
+    },
+  },
+  { _id: false }
+);
 
 const attributeValueSchema = new mongoose.Schema(
   {
