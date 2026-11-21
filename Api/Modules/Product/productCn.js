@@ -1,5 +1,7 @@
 import ApiFeatures, { catchAsync, HandleERROR } from "vanta-api";
 import Product from "./productMd.js";
+import Attribute from "../Attribute/attributeMd.js";
+import ProductVariant from "../ProductVariant/productVariantMd.js";
 import "../Category/categoryMd.js";
 import "../Brand/brandMd.js";
 import "../Seo/seoMd.js";
@@ -13,6 +15,49 @@ const getMessage = (req, fa, en) => {
     .toLowerCase();
 
   return language === "en" ? en : fa;
+};
+
+// بررسی وجود ویژگی‌های انتخاب‌شده و فعال بودن آن‌ها
+const validateActiveAttributes = async (attributeIds) => {
+  if (!Array.isArray(attributeIds)) {
+    return false;
+  }
+  const uniqueIds = new Set(attributeIds.map(String));
+  if (uniqueIds.size !== attributeIds.length) {
+    return false;
+  }
+  if (attributeIds.length === 0) {
+    return true;
+  }
+  const activeAttributesCount = await Attribute.countDocuments({
+    _id: { $in: attributeIds },
+    isActive: true,
+  });
+  return activeAttributesCount === attributeIds.length;
+};
+
+// بررسی استفاده شدن ویژگی‌های حذف‌شده در تنوع‌های محصول
+const validateUsedAttributes = async (productId, attributeIds) => {
+  const [variantAttributeIds, variantDetailIds] = await Promise.all([
+    ProductVariant.distinct("attributes.attributeId", {
+      productId,
+    }),
+    ProductVariant.distinct("details.attributeId", {
+      productId,
+    }),
+  ]);
+  const usedAttributeIds = new Set(
+    [...variantAttributeIds, ...variantDetailIds].map(String),
+  );
+  const nextAttributeIds = new Set(attributeIds.map(String));
+
+  for (const attributeId of usedAttributeIds) {
+    if (!nextAttributeIds.has(attributeId)) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 export const getAll = catchAsync(async (req, res, next) => {
@@ -90,8 +135,29 @@ export const create = catchAsync(async (req, res, next) => {
       ),
     );
   }
+
+  // اعتبارسنجی ویژگی‌های انتخاب‌شده
+  const attributeIds = productData.attributeIds ?? [];
+
+  const areAttributesValid =
+    await validateActiveAttributes(attributeIds);
+
+  if (!areAttributesValid) {
+    return next(
+      new HandleERROR(
+        getMessage(
+          req,
+          "ویژگی‌های انتخاب‌شده نامعتبر هستند یا غیرفعال شده‌اند.",
+          "One or more selected attributes are invalid or inactive.",
+        ),
+        400,
+      ),
+    );
+  }
+
   const product = await Product.create({
     ...productData,
+    attributeIds,
     isPublished,
   });
 
@@ -159,6 +225,44 @@ export const update = catchAsync(async (req, res, next) => {
     ...productData
   } = req.body;
 
+  // اعتبارسنجی ویژگی‌ها فقط در صورت ارسال attributeIds
+  if (Object.hasOwn(productData, "attributeIds")) {
+    const areAttributesValid =
+      await validateActiveAttributes(productData.attributeIds);
+
+    if (!areAttributesValid) {
+      return next(
+        new HandleERROR(
+          getMessage(
+            req,
+            "ویژگی‌های انتخاب‌شده نامعتبر هستند یا غیرفعال شده‌اند.",
+            "One or more selected attributes are invalid or inactive.",
+          ),
+          400,
+        ),
+      );
+    }
+
+    // جلوگیری از حذف ویژگی‌هایی که در تنوع‌های موجود محصول استفاده شده‌اند
+    const areUsedAttributesValid = await validateUsedAttributes(
+      product._id,
+      productData.attributeIds,
+    );
+
+    if (!areUsedAttributesValid) {
+      return next(
+        new HandleERROR(
+          getMessage(
+            req,
+            "امکان حذف ویژگی‌هایی که در تنوع‌های محصول استفاده شده‌اند وجود ندارد.",
+            "Attributes used by product variants cannot be removed.",
+          ),
+          400,
+        ),
+      );
+    }
+  }
+
   const newProduct = await Product.findByIdAndUpdate(
     req.params.id,
     productData,
@@ -177,8 +281,7 @@ export const update = catchAsync(async (req, res, next) => {
   }
   if (req.body.images !== undefined) {
     for (let img of product.images) {
-      let remove = !req.body.images.find((item) => item == img);
-
+      const remove = !req.body.images.find((item) => item == img);
       if (remove) {
         if (fs.existsSync(`${__dirname}/public/${img}`)) {
           fs.unlinkSync(`${__dirname}/public/${img}`);
@@ -188,8 +291,7 @@ export const update = catchAsync(async (req, res, next) => {
   }
   if (req.body.videos !== undefined) {
     for (let video of product.videos) {
-      let remove = !req.body.videos.find((item) => item == video);
-
+      const remove = !req.body.videos.find((item) => item == video);
       if (remove) {
         if (fs.existsSync(`${__dirname}/public/${video}`)) {
           fs.unlinkSync(`${__dirname}/public/${video}`);

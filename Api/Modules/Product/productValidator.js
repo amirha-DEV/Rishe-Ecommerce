@@ -1,12 +1,34 @@
-
 import { body, param } from "express-validator";
 
+// Validate product attribute IDs
+const validateAttributeIds = [
+  body("attributeIds")
+    .optional({ values: "undefined" })
+    .isArray()
+    .withMessage("ویژگی‌های محصول باید آرایه باشند.")
+    .bail()
+    .custom((ids) => {
+      const uniqueIds = new Set(
+        ids.map((id) => String(id).toLowerCase()),
+      );
+
+      return uniqueIds.size === ids.length;
+    })
+    .withMessage("شناسه ویژگی‌های محصول نباید تکراری باشند."),
+
+  body("attributeIds.*")
+    .isMongoId()
+    .withMessage("شناسه یکی از ویژگی‌های محصول معتبر نیست."),
+];
+
+// Validate product ID
 export const productIdValidator = [
   param("id")
     .isMongoId()
     .withMessage("شناسه محصول معتبر نیست"),
 ];
 
+// Create product validation
 export const createProductValidator = [
   body("brandId")
     .notEmpty()
@@ -21,6 +43,8 @@ export const createProductValidator = [
   body("categoryIds.*")
     .isMongoId()
     .withMessage("شناسه دسته‌بندی معتبر نیست"),
+
+  ...validateAttributeIds,
 
   body("title")
     .isObject()
@@ -217,6 +241,7 @@ export const createProductValidator = [
     .withMessage("شناسه سئو معتبر نیست"),
 ];
 
+// Update product validation
 export const updateProductValidator = [
   body("brandId")
     .optional()
@@ -231,6 +256,8 @@ export const updateProductValidator = [
   body("categoryIds.*")
     .isMongoId()
     .withMessage("شناسه دسته‌بندی معتبر نیست"),
+
+  ...validateAttributeIds,
 
   body("title")
     .optional()

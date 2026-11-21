@@ -17,7 +17,7 @@ export const localizedSchema = new mongoose.Schema(
       maxlength: [150, "English title cannot exceed 150 characters"],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const optionalLocalizedSchema = new mongoose.Schema(
@@ -35,7 +35,7 @@ const optionalLocalizedSchema = new mongoose.Schema(
       minlength: [3, "English text must be at least 3 characters"],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const productSchema = new mongoose.Schema(
@@ -64,6 +64,24 @@ const productSchema = new mongoose.Schema(
           );
         },
         message: "محصول باید حداقل یک دسته‌بندی یکتا داشته باشد",
+      },
+    },
+    attributeIds: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Attribute",
+        },
+      ],
+      default: [],
+      validate: {
+        validator: function (attributes) {
+          return (
+            attributes.every((attribute) => attribute != null) &&
+            new Set(attributes.map(String)).size === attributes.length
+          );
+        },
+        message: "ویژگی‌های محصول باید معتبر و یکتا باشند.",
       },
     },
     title: {
@@ -197,7 +215,7 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 productSchema.index({ "slug.fa": 1 }, { unique: true });
